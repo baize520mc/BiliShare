@@ -11,7 +11,7 @@
 ![WinUI 3](https://img.shields.io/badge/WinUI%203-1.7.7-8A2BE2)
 ![.NET](https://img.shields.io/badge/.NET-8-512BD4)
 ![WebView2](https://img.shields.io/badge/WebView2-Embedded-brightgreen)
-![Platform](https://img.shields.io/badge/Platform-Windows%2010/11-x64-informational)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%26%2011%20x64-informational)
 ![Version](https://img.shields.io/github/v/release/baize520mc/BiliShare)
 
 </div>
