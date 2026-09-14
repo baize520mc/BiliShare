@@ -1,4 +1,4 @@
-> **🤖 由 AI 辅助生成 · The project is AI-assisted.** 本项目由 AI 协助编写与完善，可能存在缺陷，请在使用前充分评估。
+> **由 AI 辅助生成 · The project is AI-assisted.** 本项目由 AI 协助编写与完善，可能存在缺陷，请在使用前充分评估。
 
 <div align="center">
 
