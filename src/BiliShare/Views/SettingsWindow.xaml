@@ -1,0 +1,270 @@
+<Window
+    x:Class="BiliShare.Views.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="设置">
+
+    <Grid x:Name="RootGrid" Background="{StaticResource BrandWindowBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部品牌条 -->
+        <Rectangle Grid.RowSpan="3" Height="3" VerticalAlignment="Top"
+                   Fill="{StaticResource BrandTopAccentBrush}" IsHitTestVisible="False"/>
+
+        <!-- 自定义标题栏 -->
+        <Grid Grid.Row="0" Height="42" Padding="16,0,8,0"
+              Background="{StaticResource BrandSurfaceAltBrush}"
+              BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="0,0,0,1">
+            <TextBlock Text="设置" FontSize="14" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrandTextBrush}" VerticalAlignment="Center"/>
+            <Button HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Click="CloseButton_Click"
+                    Style="{StaticResource BrandWindowCloseButtonStyle}"
+                    CornerRadius="7" ToolTipService.ToolTip="关闭">
+                <FontIcon Glyph="&#xE8BB;" FontSize="11"/>
+            </Button>
+        </Grid>
+
+        <!-- 内容 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="20,16,20,20" Spacing="18">
+
+                <!-- 错误详情（仅连接错误/其他问题时显示） -->
+                <Border x:Name="ErrorBanner" Visibility="Collapsed"
+                        Background="#26E05B5B" CornerRadius="12"
+                        BorderBrush="{StaticResource BrandDangerBrush}" BorderThickness="1"
+                        Padding="14,12">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <FontIcon Glyph="&#xE7BA;" FontSize="14"
+                                  Foreground="{StaticResource BrandDangerBrush}"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ErrorBannerText" VerticalAlignment="Center"
+                                   FontSize="12" Foreground="{StaticResource BrandDangerBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 运行模式 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="运行模式" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    <Border Background="#12FFFFFF" CornerRadius="12"
+                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="6">
+                            <RadioButton x:Name="ModeOnline" Content="在线模式"
+                                         GroupName="Mode" Checked="ModeRadio_Checked"/>
+                            <TextBlock Text="连接 Halo 插件后端，Cookie 由服务端集中管理、自动续期"
+                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Margin="28,0,0,0" TextWrapping="Wrap"/>
+                            <RadioButton x:Name="ModeOffline" Content="离线模式"
+                                         GroupName="Mode" Checked="ModeRadio_Checked"
+                                         Margin="0,10,0,0"/>
+                            <TextBlock Text="本地登录 B 站捕获 Cookie，AES-256-GCM 加密存本地，不连接任何在线服务"
+                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Margin="28,0,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 在线配置 -->
+                <StackPanel x:Name="OnlinePanel" Spacing="14">
+                    <TextBlock Text="在线配置" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="服务器地址" FontSize="12"/>
+                        <ComboBox x:Name="ServerProviderCombo" HorizontalAlignment="Stretch"
+                                  SelectionChanged="ServerProviderCombo_SelectionChanged">
+                            <ComboBoxItem Content="BaaaiZe 在线服务"/>
+                            <ComboBoxItem Content="其他"/>
+                        </ComboBox>
+                        <TextBox x:Name="ServerBaseUrlBox" PlaceholderText="https://blog.example.com"
+                                 Height="36" Visibility="Collapsed"/>
+                        <TextBlock Text="Halo 站点域名，不含 /apis/... 后缀"
+                                   FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="个人访问令牌（PAT）" FontSize="12"/>
+                        <PasswordBox x:Name="PatBox" PlaceholderText="Halo 后台 → 个人中心 → 访问令牌" Height="36"/>
+                        <TextBlock Text="普通用户接口需携带本人 PAT，仅保存于本地"
+                                   FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="TestButton" Content="测试连接"
+                                Style="{StaticResource BrandPrimaryButtonStyle}" Click="TestButton_Click"/>
+                        <TextBlock x:Name="TestResult" VerticalAlignment="Center"
+                                   FontSize="12" Foreground="{StaticResource BrandTextMutedBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 账号信息（在线模式，待账号信息 API；先展示占位） -->
+                <StackPanel x:Name="AccountPanel" Spacing="10">
+                    <TextBlock Text="账号信息" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    <Border Background="#12FFFFFF" CornerRadius="12"
+                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock x:Name="HaloAccountLabel" Text="Halo 账户" Grid.Row="0" FontSize="12"
+                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            <TextBlock x:Name="AccountHaloText" Grid.Row="0" Grid.Column="1" Text="—"
+                                       FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="Bilibili 用户" Grid.Row="1" FontSize="12" Margin="0,8,16,0"
+                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="AccountBiliText" Grid.Row="1" Grid.Column="1" Text="—" Margin="0,8,0,0"
+                                       FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="Cookie 有效期" Grid.Row="2" FontSize="12" Margin="0,8,16,0"
+                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="AccountExpiryText" Grid.Row="2" Grid.Column="1" Text="—" Margin="0,8,0,0"
+                                       FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="上次刷新时间" Grid.Row="3" FontSize="12" Margin="0,8,16,0"
+                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="AccountLastRefreshText" Grid.Row="3" Grid.Column="1" Text="—" Margin="0,8,0,0"
+                                       FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Cookie 管理 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Cookie 管理" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    <Border Background="#12FFFFFF" CornerRadius="12"
+                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="12">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Ellipse x:Name="CookieStatusLight" Width="8" Height="8"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock x:Name="CookieStatusText" Text="尚未获取 Cookie"
+                                           FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- 在线模式动作 -->
+                            <StackPanel x:Name="OnlineCookieActions" Spacing="10">
+                                <Button x:Name="RefreshCookieButton" Content="刷新当前 Cookie"
+                                        Style="{StaticResource BrandPrimaryButtonStyle}"
+                                        Click="RefreshCookieButton_Click"/>
+                                <Button x:Name="RefetchUploadButton" Content="重新获取 Cookie 并上传覆盖"
+                                        Click="RefetchUploadButton_Click"/>
+                                <Button x:Name="ValidateCookieButton" Content="验证 Cookie 是否有效"
+                                        Click="ValidateCookieButton_Click"/>
+                                <Button x:Name="ExportOnlineCookieButton" Content="导出"
+                                        Click="ExportCookieButton_Click"/>
+                            </StackPanel>
+
+                            <!-- 离线模式动作 -->
+                            <StackPanel x:Name="OfflineCookieActions" Spacing="10">
+                                <Button x:Name="FetchCookieButton" Content="获取 Cookie"
+                                        Style="{StaticResource BrandPrimaryButtonStyle}"
+                                        Click="FetchCookieButton_Click"/>
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Button Content="导入" Click="ImportCookieButton_Click"/>
+                                    <Button Content="导出" Click="ExportCookieButton_Click"/>
+                                </StackPanel>
+                                <Button x:Name="OfflineRefreshCookieButton" Content="刷新 Cookie"
+                                        Click="OfflineRefreshCookieButton_Click"/>
+                                <Button Content="重新获取 Cookie 内容" Click="FetchCookieButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 更多设置入口（在线模式，醒目卡片，位于 Cookie 板块下方、清除数据上方） -->
+                <Border x:Name="MoreLinkPanel" Background="#1AFB7299" CornerRadius="12"
+                        BorderBrush="{StaticResource BrandPinkBrush}" BorderThickness="1"
+                        Padding="14,11">
+                    <TextBlock FontSize="13" Foreground="{StaticResource BrandTextBrush}"
+                               VerticalAlignment="Center" TextWrapping="Wrap">
+                        <Run Text="更多设置请前往 "/><Hyperlink x:Name="MoreLink" Click="MoreLink_Click"
+                                Foreground="{StaticResource BrandPinkBrush}">个人中心</Hyperlink>
+                    </TextBlock>
+                </Border>
+
+                <!-- 关于与更新 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="关于与更新" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    <Border Background="#12FFFFFF" CornerRadius="12"
+                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="当前版本" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{StaticResource BrandTextMutedBrush}"/>
+                                <TextBlock x:Name="CurrentVersionText" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{StaticResource BrandTextBrush}"/>
+                            </StackPanel>
+                            <Button x:Name="CheckUpdateButton" Content="检查更新"
+                                    Style="{StaticResource BrandPrimaryButtonStyle}"
+                                    Click="CheckUpdateButton_Click"/>
+                            <TextBlock x:Name="UpdateStatusText" FontSize="11"
+                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 危险操作：清除所有数据 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="危险操作" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                    <Border Background="#1AE05B5B" CornerRadius="12"
+                            BorderBrush="{StaticResource BrandDangerBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="清除所有数据"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BrandDangerBrush}"/>
+                            <TextBlock Text="删除本地配置、Cookie、日志与 WebView2 数据并重启应用，恢复到首次引导状态。"
+                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       TextWrapping="Wrap"/>
+                            <Button Content="清除所有数据并重启" HorizontalAlignment="Left"
+                                    Click="ClearAllDataButton_Click"
+                                    Foreground="#FFFFFFFF"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 底部操作 -->
+        <Grid Grid.Row="2" Padding="20,12,20,16"
+              BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="0,1,0,0">
+            <TextBlock Text="您的设置将在新建标签页后生效"
+                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                       VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Button Content="保存" HorizontalAlignment="Right" MinWidth="88"
+                    Style="{StaticResource BrandPrimaryButtonStyle}" Click="SaveButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

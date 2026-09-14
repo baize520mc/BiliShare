@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>欢迎使用 BiliShare</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <main class="shell">
+        <header class="hero">
+            <div class="logo">BILI<span>SHARE</span></div>
+            <h1>安全持有你的 B 站大会员 Cookie</h1>
+            <p class="sub">选择运行模式，完成首次配置即可开始使用</p>
+        </header>
+
+        <section class="modes">
+            <button class="mode-card" id="modeOnline" type="button">
+                <span class="mode-icon">
+                    <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                </span>
+                <span class="mode-title">在线模式</span>
+                <span class="mode-desc">连接 Halo 插件后端，Cookie 由服务端集中管理、自动续期</span>
+                <span class="mode-check"></span>
+            </button>
+            <button class="mode-card" id="modeOffline" type="button">
+                <span class="mode-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z"/></svg>
+                </span>
+                <span class="mode-title">离线模式</span>
+                <span class="mode-desc">本地登录 B 站捕获 Cookie，AES-256-GCM 加密存本地</span>
+                <span class="mode-check"></span>
+            </button>
+        </section>
+
+        <section class="panel" id="onlinePanel" hidden>
+            <p class="offline-tip">
+                首次使用请先<a href="https://www1.baaaize.site/uc" target="_blank" rel="noopener">前往 Halo 注册账户并获取令牌</a>，使用说明见<a href="https://www1.baaaize.site/archives/bilibili" target="_blank" rel="noopener">教程文档</a>。
+            </p>
+            <label class="field" style="margin-top: 14px;">
+                <span class="label">服务器地址</span>
+                <select id="serverProvider">
+                    <option value="baaaize">BaaaiZe 在线服务</option>
+                    <option value="other">其他</option>
+                </select>
+                <span class="hint">选择官方服务或填写自有 Halo 站点域名</span>
+            </label>
+            <label class="field" id="serverBaseUrlField" hidden>
+                <span class="label">服务端地址</span>
+                <input id="serverBaseUrl" type="text" placeholder="https://blog.example.com" />
+                <span class="hint">Halo 站点域名，不含 /apis/... 后缀</span>
+            </label>
+            <label class="field">
+                <span class="label">个人访问令牌（PAT）</span>
+                <input id="pat" type="password" placeholder="Halo 后台 → 个人中心 → 访问令牌" />
+                <span class="hint">普通用户接口需携带本人 PAT，仅保存于本地</span>
+            </label>
+        </section>
+
+        <section class="panel" id="offlinePanel" hidden>
+            <p class="offline-tip">离线模式下，你将通过内置登录窗口登录 B 站，客户端会自动捕获 SESSDATA、bili_jct、refresh_token 等字段，并用 AES-256-GCM 加密保存在本地。</p>
+        </section>
+
+        <div class="error-banner" id="errorBanner" hidden>
+            <span class="error-icon">!</span>
+            <span id="errorText"></span>
+        </div>
+
+        <footer class="actions">
+            <button class="primary" id="startBtn" type="button">开始使用</button>
+        </footer>
+    </main>
+    <script src="bridge.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>BiliShare</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationTitle>BiliShare</ApplicationTitle>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Company>BaaaiZe</Company>
+    <Product>BiliShare</Product>
+    <Copyright>Copyright (c) 2026 BaaaiZe</Copyright>
+    <Description>B站大会员 Cookie 远程共享客户端</Description>
+    <ApplicationIcon>Assets\BiliShare.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250909003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- 每次构建完成后清除 data 数据目录（先杀主/子进程再递归删除，容错不阻塞构建），便于从头开始测试 -->
+  <Target Name="ClearDataAfterBuild" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;Get-Process BiliShare,msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 500; if (Test-Path '$(TargetDir)data') { Remove-Item '$(TargetDir)data' -Recurse -Force -ErrorAction SilentlyContinue }&quot;" ContinueOnError="true" />
+  </Target>
+
+</Project>

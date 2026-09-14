@@ -1,0 +1,199 @@
+:root {
+    color-scheme: dark;
+    --pink: #FB7299;
+    --pink-deep: #E7568B;
+    --blue: #00A1D6;
+    --bg0: #171614;
+    --bg1: #1C1B19;
+    --bg2: #232120;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-alt: rgba(255, 255, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.20);
+    --text: #F5F2EC;
+    --text-muted: #A7A39A;
+    --danger: #E05B5B;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* 显式隐藏带 hidden 属性的元素（避免被 .field 的 display:flex 覆盖） */
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(1200px 600px at 18% -12%, #2C2440 0%, transparent 60%),
+        radial-gradient(1000px 520px at 108% 0%, #17304A 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 45%, var(--bg0) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px;
+}
+
+.shell { width: 100%; max-width: 580px; }
+
+.hero { text-align: center; margin-bottom: 28px; }
+
+.logo {
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, var(--pink), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+}
+.logo span { font-weight: 500; }
+
+.hero h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+
+.sub { color: var(--text-muted); font-size: 13px; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+.mode-card {
+    position: relative;
+    text-align: left;
+    padding: 18px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .18s, background .18s, transform .12s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.mode-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.mode-card.active {
+    border-color: var(--pink);
+    background: linear-gradient(180deg, rgba(251, 114, 153, 0.12), rgba(251, 114, 153, 0.04));
+}
+
+.mode-icon { width: 24px; height: 24px; color: var(--blue); margin-bottom: 4px; }
+.mode-icon svg { width: 24px; height: 24px; fill: currentColor; }
+.mode-card.active .mode-icon { color: var(--pink); }
+
+.mode-title { font-size: 15px; font-weight: 600; }
+.mode-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+.mode-check {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    transition: border-color .18s, background .18s;
+}
+.mode-card.active .mode-check {
+    border-color: var(--pink);
+    background: radial-gradient(circle at center, var(--pink) 0 45%, transparent 48%);
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field + .field { margin-top: 14px; }
+
+.label { font-size: 13px; font-weight: 600; }
+
+.field input {
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color .18s, background .18s;
+}
+.field select {
+    height: 40px;
+    padding: 0 36px 0 12px;
+    border-radius: 12px;
+    background-color: var(--surface-alt);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A7A39A'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color .18s, background-color .18s, box-shadow .18s;
+}
+.field select:hover { border-color: var(--border-strong); background-color: rgba(255, 255, 255, 0.09); }
+.field select:focus { border-color: var(--pink); background-color: rgba(255, 255, 255, 0.08); box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.18); }
+.field select option { background-color: #1C1B19; color: #F5F2EC; }
+.field input:focus { border-color: var(--pink); background: rgba(255, 255, 255, 0.08); }
+.field input.invalid { border-color: var(--danger); }
+.field select.invalid { border-color: var(--danger); }
+.field input::placeholder { color: rgba(167, 163, 154, 0.6); }
+
+.hint { font-size: 11px; color: var(--text-muted); }
+
+.offline-tip { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+.panel a { color: var(--pink); text-decoration: none; }
+.panel a:hover { text-decoration: underline; }
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: rgba(224, 91, 91, 0.14);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.error-icon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--danger);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 14px;
+}
+
+.actions { display: flex; }
+
+.primary {
+    flex: 1;
+    height: 46px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--pink), var(--pink-deep));
+    transition: transform .12s, box-shadow .18s, opacity .18s;
+    box-shadow: 0 6px 20px rgba(251, 114, 153, 0.28);
+}
+.primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(251, 114, 153, 0.36); }
+.primary:active { transform: translateY(0); opacity: 0.92; }

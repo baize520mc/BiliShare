@@ -1,0 +1,31 @@
+# ===== 构建产物 =====
+[Bb]in/
+[Oo]bj/
+dist/
+*.pdb
+*.iobj
+*.ipdb
+
+# ===== 运行时数据（Cookie/配置/日志/WebView2，绝不提交） =====
+data/
+
+# ===== IDE / 编辑器 =====
+.vs/
+*.user
+*.suo
+*.userosscache
+.vscode/
+
+# ===== NuGet / 打包 =====
+*.nupkg
+packages/
+
+# ===== 敏感/本地配置 =====
+.trae/
+.trae-cn/
+*.trae*
+config.local.json
+
+# ===== 系统 =====
+Thumbs.db
+Desktop.ini
