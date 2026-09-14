@@ -59,6 +59,7 @@ BiliShare 是一个 Windows 桌面浏览器客户端，以**安全持有 B 站�
 Cookie 由**服务端集中管理**，客户端按需拉取并自动续期。
 
 - 连接 Halo 插件后端（PAT 鉴权），选择官方「BaaaiZe 在线服务」或填写自有 Halo 站点域名。
+- 默认对接的 Halo 后端插件为 [**bili-cookie**](https://github.com/baize520mc/bili-cookie)，它负责在服务端安全托管并自动续期 Cookie；如需自建服务端，可部署该插件到你的 Halo 站点。
 - 启动时自动拉取 Cookie → 补全设备指纹 → 注入 WebView2 → 进入 B 站。
 - 服务端统一管理 cookie、refresh_token，自动续期，多设备共享同一登录态。
 
