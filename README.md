@@ -187,3 +187,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
 ## 许可证
 
 本仓库未附带正式许可证文件，默认保留所有权利（All Rights Reserved）。如需商用或分发，请联系作者授权。
+
+---
+
+## 关于本项目
+
+本项目由 **AI 辅助生成**。代码、界面与文档在人工需求确认与指导的基础上，由 AI 协助编写与完善。生成内容可能存在未知缺陷，请在使用前充分评估，并善用开源社区与文档资源进行核查与改进。
