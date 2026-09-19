@@ -1,43 +1,94 @@
 <Application
     x:Class="BiliShare.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    RequestedTheme="Dark">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ============ 品牌色板（BiliShare Night） ============ -->
-            <SolidColorBrush x:Key="BrandPinkBrush" Color="#FFFB7299"/>
-            <SolidColorBrush x:Key="BrandPinkDeepBrush" Color="#FFE7568B"/>
-            <SolidColorBrush x:Key="BrandBlueBrush" Color="#FF00A1D6"/>
-            <SolidColorBrush x:Key="BrandSurfaceBrush" Color="#FF1C1B19"/>
-            <SolidColorBrush x:Key="BrandSurfaceAltBrush" Color="#FF262420"/>
-            <SolidColorBrush x:Key="BrandSurfaceRaisedBrush" Color="#FF2C2A26"/>
-            <SolidColorBrush x:Key="BrandBorderBrush" Color="#1FFFFFFF"/>
-            <SolidColorBrush x:Key="BrandBorderStrongBrush" Color="#33FFFFFF"/>
-            <SolidColorBrush x:Key="BrandTextBrush" Color="#FFF5F2EC"/>
-            <SolidColorBrush x:Key="BrandTextMutedBrush" Color="#FFA7A39A"/>
-            <SolidColorBrush x:Key="BrandSuccessBrush" Color="#FF7BC48B"/>
-            <SolidColorBrush x:Key="BrandWarnBrush" Color="#FFF0B45A"/>
-            <SolidColorBrush x:Key="BrandDangerBrush" Color="#FFE05B5B"/>
-            <SolidColorBrush x:Key="BrandIdleBrush" Color="#FF6E6A61"/>
+            <!-- ============ 主题色板（ThemeDictionaries） ============
+                 Default = 浅色（主蓝、强调粉）；Dark = 深色（保持原 BiliShare Night：主粉、次蓝）。 -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="BrandPinkBrush" Color="#FF1B7FA8"/>
+                    <SolidColorBrush x:Key="BrandPinkDeepBrush" Color="#FF157096"/>
+                    <SolidColorBrush x:Key="BrandBlueBrush" Color="#FFE7568B"/>
+                    <SolidColorBrush x:Key="BrandSurfaceBrush" Color="#FFF3F0E9"/>
+                    <SolidColorBrush x:Key="BrandSurfaceAltBrush" Color="#FFEDE9E0"/>
+                    <SolidColorBrush x:Key="BrandSurfaceRaisedBrush" Color="#FFFBF9F4"/>
+                    <SolidColorBrush x:Key="BrandBorderBrush" Color="#33000000"/>
+                    <SolidColorBrush x:Key="BrandBorderStrongBrush" Color="#55000000"/>
+                    <SolidColorBrush x:Key="BrandTextBrush" Color="#FF1C1B19"/>
+                    <SolidColorBrush x:Key="BrandTextMutedBrush" Color="#FF6E6A61"/>
+                    <SolidColorBrush x:Key="BrandSuccessBrush" Color="#FF3E8A52"/>
+                    <SolidColorBrush x:Key="BrandWarnBrush" Color="#FFB07A1B"/>
+                    <SolidColorBrush x:Key="BrandDangerBrush" Color="#FFC1483D"/>
+                    <SolidColorBrush x:Key="BrandIdleBrush" Color="#FF8A8377"/>
 
-            <!-- 窗口根背景：暖黑渐变 -->
-            <LinearGradientBrush x:Key="BrandWindowBrush" StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="#FF232120" Offset="0"/>
-                <GradientStop Color="#FF1C1B19" Offset="0.6"/>
-                <GradientStop Color="#FF171614" Offset="1"/>
-            </LinearGradientBrush>
+                    <!-- 窗口根背景：暖白渐变 -->
+                    <LinearGradientBrush x:Key="BrandWindowBrush" StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FFF4F1EA" Offset="0"/>
+                        <GradientStop Color="#FFECE8DF" Offset="0.6"/>
+                        <GradientStop Color="#FFE7E2D8" Offset="1"/>
+                    </LinearGradientBrush>
 
-            <!-- 顶部粉→蓝 渐变强调线 -->
-            <LinearGradientBrush x:Key="BrandTopAccentBrush" StartPoint="0,0" EndPoint="1,0">
-                <GradientStop Color="#FFFB7299" Offset="0"/>
-                <GradientStop Color="#FFE7568B" Offset="0.5"/>
-                <GradientStop Color="#FF00A1D6" Offset="1"/>
-            </LinearGradientBrush>
+                    <!-- 顶部渐变强调线（浅色：粉→蓝，突出强调） -->
+                    <LinearGradientBrush x:Key="BrandTopAccentBrush" StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFE7568B" Offset="0"/>
+                        <GradientStop Color="#FFB0609E" Offset="0.5"/>
+                        <GradientStop Color="#FF1B7FA8" Offset="1"/>
+                    </LinearGradientBrush>
+
+                    <!-- 卡片/面板半透明底（浅色用暖白） -->
+                    <SolidColorBrush x:Key="BrandCardBrush" Color="#FFFBF9F4"/>
+                    <SolidColorBrush x:Key="BrandAddressBarBrush" Color="#22000000"/>
+                    <SolidColorBrush x:Key="BrandWebViewBackgroundBrush" Color="#FFF4F1EA"/>
+                    <SolidColorBrush x:Key="BrandDangerBarBrush" Color="#26C1483D"/>
+                    <SolidColorBrush x:Key="BrandDangerCardBrush" Color="#1AC1483D"/>
+                    <SolidColorBrush x:Key="BrandPinkSoftBrush" Color="#1A1B7FA8"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="BrandPinkBrush" Color="#FFFB7299"/>
+                    <SolidColorBrush x:Key="BrandPinkDeepBrush" Color="#FFE7568B"/>
+                    <SolidColorBrush x:Key="BrandBlueBrush" Color="#FF00A1D6"/>
+                    <SolidColorBrush x:Key="BrandSurfaceBrush" Color="#FF1C1B19"/>
+                    <SolidColorBrush x:Key="BrandSurfaceAltBrush" Color="#FF262420"/>
+                    <SolidColorBrush x:Key="BrandSurfaceRaisedBrush" Color="#FF2C2A26"/>
+                    <SolidColorBrush x:Key="BrandBorderBrush" Color="#1FFFFFFF"/>
+                    <SolidColorBrush x:Key="BrandBorderStrongBrush" Color="#33FFFFFF"/>
+                    <SolidColorBrush x:Key="BrandTextBrush" Color="#FFF5F2EC"/>
+                    <SolidColorBrush x:Key="BrandTextMutedBrush" Color="#FFA7A39A"/>
+                    <SolidColorBrush x:Key="BrandSuccessBrush" Color="#FF7BC48B"/>
+                    <SolidColorBrush x:Key="BrandWarnBrush" Color="#FFF0B45A"/>
+                    <SolidColorBrush x:Key="BrandDangerBrush" Color="#FFE05B5B"/>
+                    <SolidColorBrush x:Key="BrandIdleBrush" Color="#FF6E6A61"/>
+
+                    <!-- 窗口根背景：暖黑渐变 -->
+                    <LinearGradientBrush x:Key="BrandWindowBrush" StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FF232120" Offset="0"/>
+                        <GradientStop Color="#FF1C1B19" Offset="0.6"/>
+                        <GradientStop Color="#FF171614" Offset="1"/>
+                    </LinearGradientBrush>
+
+                    <!-- 顶部粉→蓝 渐变强调线 -->
+                    <LinearGradientBrush x:Key="BrandTopAccentBrush" StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFFB7299" Offset="0"/>
+                        <GradientStop Color="#FFE7568B" Offset="0.5"/>
+                        <GradientStop Color="#FF00A1D6" Offset="1"/>
+                    </LinearGradientBrush>
+
+                    <!-- 卡片/面板半透明底（深色保持原值） -->
+                    <SolidColorBrush x:Key="BrandCardBrush" Color="#12FFFFFF"/>
+                    <SolidColorBrush x:Key="BrandAddressBarBrush" Color="#12FFFFFF"/>
+                    <SolidColorBrush x:Key="BrandWebViewBackgroundBrush" Color="#FF121110"/>
+                    <SolidColorBrush x:Key="BrandDangerBarBrush" Color="#26E05B5B"/>
+                    <SolidColorBrush x:Key="BrandDangerCardBrush" Color="#1AE05B5B"/>
+                    <SolidColorBrush x:Key="BrandPinkSoftBrush" Color="#1AFB7299"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
 
             <!-- ============ 图标按钮（圆角、玻璃态） ============ -->
             <Style x:Key="BrandIconButtonStyle" TargetType="Button">
@@ -45,7 +96,7 @@
                 <Setter Property="Height" Value="34"/>
                 <Setter Property="CornerRadius" Value="9"/>
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{StaticResource BrandTextBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource BrandTextBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -119,7 +170,7 @@
 
             <!-- 主页按钮：品牌强调 -->
             <Style x:Key="BrandHomeButtonStyle" BasedOn="{StaticResource BrandIconButtonStyle}" TargetType="Button">
-                <Setter Property="Foreground" Value="{StaticResource BrandPinkBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource BrandPinkBrush}"/>
             </Style>
 
             <!-- 窗口控制按钮（标签栏右端，隐藏系统标题栏后使用）：关闭按钮悬停变红 -->
@@ -128,7 +179,7 @@
                 <Setter Property="Height" Value="26"/>
                 <Setter Property="CornerRadius" Value="7"/>
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{StaticResource BrandTextBrush}"/>
+                <Setter Property="Foreground" Value="{ThemeResource BrandTextBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -172,7 +223,7 @@
 
             <!-- 品牌主按钮：粉底白字，用于设置页/引导页的确认操作 -->
             <Style x:Key="BrandPrimaryButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="{StaticResource BrandPinkBrush}"/>
+                <Setter Property="Background" Value="{ThemeResource BrandPinkBrush}"/>
                 <Setter Property="Foreground" Value="#FFFFFFFF"/>
                 <Setter Property="CornerRadius" Value="8"/>
                 <Setter Property="Padding" Value="16,8"/>
