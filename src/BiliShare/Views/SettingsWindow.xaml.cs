@@ -30,7 +30,7 @@ public sealed partial class SettingsWindow : Window
     private InputNonClientPointerSource? _ncInputSource;
     private const double TitleBarHeightDip = 42; // 顶栏高度（作为可拖拽标题栏）
 
-    private static Brush Brush(string key) => (Brush)Application.Current.Resources[key];
+    private Brush XamlBrush(string key) => BiliShare.Services.ThemeService.Brush(key, RootGrid);
 
     public SettingsWindow(AppConfig config)
     {
@@ -49,6 +49,8 @@ public sealed partial class SettingsWindow : Window
         this.AppWindow.Resize(new Windows.Graphics.SizeInt32(860, 900));
 
         SetupDragRegion();
+        ThemeService.Attach(RootGrid);
+        Closed += (_, _) => ThemeService.Detach(RootGrid);
         LoadFromConfig();
         CurrentVersionText.Text = $"v{UpdateService.CurrentVersion}";
     }
@@ -59,6 +61,13 @@ public sealed partial class SettingsWindow : Window
         ModeOnline.IsChecked = online;
         ModeOffline.IsChecked = !online;
         PatBox.Password = _config.PAT;
+
+        switch (_config.Theme)
+        {
+            case AppTheme.Light: ThemeLight.IsChecked = true; break;
+            case AppTheme.Dark: ThemeDark.IsChecked = true; break;
+            default: ThemeSystem.IsChecked = true; break;
+        }
 
         var baseUrl = _config.ServerBaseUrl?.Trim();
         var isOfficial = string.IsNullOrEmpty(baseUrl) || baseUrl == OfficialServerUrl;
@@ -85,6 +94,14 @@ public sealed partial class SettingsWindow : Window
             : ServerBaseUrlBox.Text.Trim();
 
     private void ModeRadio_Checked(object sender, RoutedEventArgs e) => UpdateOnlinePanel();
+
+    private void ThemeRadio_Checked(object sender, RoutedEventArgs e)
+    {
+        var theme = ThemeLight.IsChecked == true
+            ? AppTheme.Light
+            : ThemeDark.IsChecked == true ? AppTheme.Dark : AppTheme.System;
+        ThemeService.Preview(theme);
+    }
 
     private void UpdateOnlinePanel()
     {
@@ -156,6 +173,7 @@ public sealed partial class SettingsWindow : Window
         AccountBiliText.Text = "—";
         AccountExpiryText.Text = "—";
         AccountLastRefreshText.Text = "—";
+        AccountPluginVersionText.Text = "—";
     }
 
     private void ApplyStatusToAccountPanel(StatusData s)
@@ -167,6 +185,9 @@ public sealed partial class SettingsWindow : Window
             : (s.Validated ? "已验证" : "未验证");
         AccountExpiryText.Text = s.Valid ? $"约 {s.ExpiresIn} 天" : "—";
         AccountLastRefreshText.Text = FormatIso(s.LastRefresh);
+        AccountPluginVersionText.Text = !string.IsNullOrWhiteSpace(s.PluginVersion)
+            ? $"v{s.PluginVersion}"
+            : "—";
     }
 
     /// <summary>填充 Halo 用户名（优先显示名，缺失时用登录名；获取失败保持占位）。</summary>
@@ -245,7 +266,7 @@ public sealed partial class SettingsWindow : Window
 
         TestButton.IsEnabled = false;
         ClearError();
-        TestResult.Foreground = Brush("BrandTextMutedBrush");
+        TestResult.Foreground = XamlBrush("BrandTextMutedBrush");
         TestResult.Text = "正在测试…";
 
         try
@@ -254,8 +275,21 @@ public sealed partial class SettingsWindow : Window
             var status = await api.GetStatusAsync();
             ClearError();
             TestResult.Text = $"连接成功：{status.Message}";
-            TestResult.Foreground = Brush(status.Valid ? "BrandSuccessBrush" : "BrandWarnBrush");
+            TestResult.Foreground = XamlBrush(status.Valid ? "BrandSuccessBrush" : "BrandWarnBrush");
             ApplyStatusToAccountPanel(status);
+
+            // 在线服务虽连通，但客户端连接开关未开启，弹窗提醒
+            if (!status.ClientEnabled)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "客户端连接未开启",
+                    Content = "在线服务已连接，但「客户端连接」开关当前关闭，客户端将无法从服务端获取 Cookie。\n请在插件设置中开启后重试。",
+                    CloseButtonText = "我知道了",
+                    XamlRoot = RootGrid.XamlRoot,
+                };
+                await dialog.ShowAsync();
+            }
 
             try
             {
@@ -288,6 +322,9 @@ public sealed partial class SettingsWindow : Window
         _config.Mode = ModeOnline.IsChecked == true ? AppMode.Online : AppMode.Offline;
         _config.ServerBaseUrl = EffectiveServerBaseUrl;
         _config.PAT = PatBox.Password.Trim();
+        _config.Theme = ThemeLight.IsChecked == true
+            ? AppTheme.Light
+            : ThemeDark.IsChecked == true ? AppTheme.Dark : AppTheme.System;
         ConfigService.Save(_config);
 
         Saved?.Invoke();
@@ -300,7 +337,7 @@ public sealed partial class SettingsWindow : Window
     {
         CheckUpdateButton.IsEnabled = false;
         ClearError();
-        UpdateStatusText.Foreground = Brush("BrandTextMutedBrush");
+        UpdateStatusText.Foreground = XamlBrush("BrandTextMutedBrush");
         UpdateStatusText.Text = "正在检查更新…";
 
         try
@@ -308,7 +345,7 @@ public sealed partial class SettingsWindow : Window
             var info = await UpdateService.CheckAsync();
             if (!info.IsNewer)
             {
-                UpdateStatusText.Foreground = Brush("BrandSuccessBrush");
+                UpdateStatusText.Foreground = XamlBrush("BrandSuccessBrush");
                 UpdateStatusText.Text = $"已是最新版本（v{info.Version}）";
                 return;
             }
@@ -344,6 +381,14 @@ public sealed partial class SettingsWindow : Window
 
     // ---------- 账号信息：超链接（在线） ----------
 
+    private void RepoLink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/baize520mc/BiliShare")
+        {
+            UseShellExecute = true,
+        });
+    }
+
     private void MoreLink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
     {
         var baseUrl = EffectiveServerBaseUrl.TrimEnd('/');
@@ -368,7 +413,7 @@ public sealed partial class SettingsWindow : Window
     {
         if (ModeOnline.IsChecked == true)
         {
-            CookieStatusLight.Fill = Brush("BrandIdleBrush");
+            CookieStatusLight.Fill = XamlBrush("BrandIdleBrush");
             CookieStatusText.Text = "在线模式 · Cookie 由服务端管理";
             return;
         }
@@ -376,17 +421,17 @@ public sealed partial class SettingsWindow : Window
         var local = LocalCookieService.Load();
         if (local == null)
         {
-            CookieStatusLight.Fill = Brush("BrandTextMutedBrush");
+            CookieStatusLight.Fill = XamlBrush("BrandTextMutedBrush");
             CookieStatusText.Text = "尚未获取 Cookie";
         }
         else if (!local.IsComplete)
         {
-            CookieStatusLight.Fill = Brush("BrandWarnBrush");
+            CookieStatusLight.Fill = XamlBrush("BrandWarnBrush");
             CookieStatusText.Text = "本地 Cookie 不完整，请重新获取";
         }
         else
         {
-            CookieStatusLight.Fill = Brush("BrandSuccessBrush");
+            CookieStatusLight.Fill = XamlBrush("BrandSuccessBrush");
             CookieStatusText.Text = $"已保存本地 Cookie（{local.SavedAt:yyyy-MM-dd}）";
         }
     }
