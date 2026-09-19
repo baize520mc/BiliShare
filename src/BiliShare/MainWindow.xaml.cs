@@ -76,6 +76,29 @@ public sealed partial class MainWindow : Window
         NewTab(HomeUrl);
         _ = UpdateStatusAsync();
         _ = AutoRefreshOfflineCookieAsync();
+
+        // 更新完成后重启进入时，弹出“已更新到 vX”提示
+        RootGrid.Loaded += RootGrid_Loaded;
+    }
+
+    private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
+    {
+        RootGrid.Loaded -= RootGrid_Loaded;
+
+        var arg = Environment.GetCommandLineArgs()
+            .FirstOrDefault(a => a.StartsWith("--updated=", StringComparison.OrdinalIgnoreCase));
+        if (arg == null)
+            return;
+
+        var version = arg["--updated=".Length..];
+        var dialog = new ContentDialog
+        {
+            Title = "更新完成",
+            Content = $"BiliShare 已更新到 v{version}",
+            CloseButtonText = "好的",
+            XamlRoot = RootGrid.XamlRoot,
+        };
+        await dialog.ShowAsync();
     }
 
     // ========================== 标签管理 ==========================

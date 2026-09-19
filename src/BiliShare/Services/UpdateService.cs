@@ -179,7 +179,7 @@ public static class UpdateService
             }
 
             progress?.Report(new UpdateProgress("正在应用更新，应用即将关闭…", 1));
-            ApplyFromStage(stageDir);
+            ApplyFromStage(stageDir, info.Version);
             return true; // 实际不会走到：ApplyFromStage 内已退出进程
         }
         catch
@@ -216,7 +216,7 @@ public static class UpdateService
     /// 写一个 PowerShell 脚本并后台启动：等待当前进程完全退出（超时则强制结束）→ 结束残留
     /// WebView2 子进程 → 覆盖文件 → 重启新版 → 自清理。随后立即退出当前进程以释放文件锁。
     /// </summary>
-    private static void ApplyFromStage(string stageDir)
+    private static void ApplyFromStage(string stageDir, string newVersion)
     {
         var root = Paths.RootDir;
         var exe = Environment.ProcessPath ?? Path.Combine(root, "BiliShare.exe");
@@ -227,6 +227,7 @@ public static class UpdateService
             $"$root = {Pq(root)}\r\n" +
             $"$stage = {Pq(stageDir)}\r\n" +
             $"$exe = {Pq(exe)}\r\n" +
+            $"$newVersion = {Pq(newVersion)}\r\n" +
             // 1) 等待主程序完全退出（10 秒未退出则强制结束，避免文件被占用）
             "$deadline = (Get-Date).AddSeconds(10)\r\n" +
             "while ((Get-Process BiliShare -ErrorAction SilentlyContinue) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 300 }\r\n" +
@@ -247,10 +248,11 @@ public static class UpdateService
             // 4) 清理并重启新版
             "Remove-Item $stage -Recurse -Force\r\n" +
             "Set-Location $root\r\n" +
-            "Start-Process -FilePath $exe -WorkingDirectory $root\r\n" +
+            "Start-Process -FilePath $exe -ArgumentList ('--updated=' + $newVersion) -WorkingDirectory $root\r\n" +
             "Remove-Item $PSCommandPath -Force\r\n";
 
-        File.WriteAllText(scriptPath, script, new System.Text.UTF8Encoding(false));
+        // 带 BOM 写入：PowerShell 5.1 读无 BOM 文件按 ANSI(GBK) 解码，中文路径会乱码导致覆盖/重启失败
+        File.WriteAllText(scriptPath, script, new System.Text.UTF8Encoding(true));
 
         Process.Start(new ProcessStartInfo
         {

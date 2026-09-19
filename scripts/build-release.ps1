@@ -100,18 +100,17 @@ function Publish-GitHubRelease {
         }
         catch { }
 
-        # Use WebClient.UploadFile to post the binary (works on Windows PowerShell 5.1)
+        # Post RAW file bytes (NOT multipart). WebClient.UploadFile wraps the body in multipart/form-data,
+        # and GitHub stores that wrapper verbatim, corrupting the asset (downloads come back as multipart junk
+        # that the updater can't unzip). Invoke-RestMethod -InFile sends the bare file content.
         $uploadUrl = ($release.upload_url -split '\{')[0] + '?name=' + [uri]::EscapeDataString($name)
-        $wc = New-Object System.Net.WebClient
-        $wc.Headers.Add('Authorization', "Bearer $Token")
-        $wc.Headers.Add('Accept', 'application/vnd.github+json')
-        $wc.Headers.Add('User-Agent', 'BiliShare-Build')
+        $ct = if ($name -like '*.zip') { 'application/zip' } else { 'application/octet-stream' }
         try {
-            $wc.UploadFile($uploadUrl, 'POST', $file) | Out-Null
+            Invoke-RestMethod -Uri $uploadUrl -Method Post -Headers $Headers -InFile $file -ContentType $ct | Out-Null
             Write-Host ("  uploaded {0}" -f $name)
         }
-        finally {
-            $wc.Dispose()
+        catch {
+            throw
         }
     }
 }
