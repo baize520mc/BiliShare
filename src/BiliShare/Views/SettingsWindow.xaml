@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Title="设置">
 
-    <Grid x:Name="RootGrid" Background="{StaticResource BrandWindowBrush}">
+    <Grid x:Name="RootGrid" Background="{ThemeResource BrandWindowBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -16,14 +16,14 @@
 
         <!-- 顶部品牌条 -->
         <Rectangle Grid.RowSpan="3" Height="3" VerticalAlignment="Top"
-                   Fill="{StaticResource BrandTopAccentBrush}" IsHitTestVisible="False"/>
+                   Fill="{ThemeResource BrandTopAccentBrush}" IsHitTestVisible="False"/>
 
         <!-- 自定义标题栏 -->
         <Grid Grid.Row="0" Height="42" Padding="16,0,8,0"
-              Background="{StaticResource BrandSurfaceAltBrush}"
-              BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="0,0,0,1">
+              Background="{ThemeResource BrandSurfaceAltBrush}"
+              BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="0,0,0,1">
             <TextBlock Text="设置" FontSize="14" FontWeight="SemiBold"
-                       Foreground="{StaticResource BrandTextBrush}" VerticalAlignment="Center"/>
+                       Foreground="{ThemeResource BrandTextBrush}" VerticalAlignment="Center"/>
             <Button HorizontalAlignment="Right" VerticalAlignment="Center"
                     Click="CloseButton_Click"
                     Style="{StaticResource BrandWindowCloseButtonStyle}"
@@ -38,37 +38,60 @@
 
                 <!-- 错误详情（仅连接错误/其他问题时显示） -->
                 <Border x:Name="ErrorBanner" Visibility="Collapsed"
-                        Background="#26E05B5B" CornerRadius="12"
-                        BorderBrush="{StaticResource BrandDangerBrush}" BorderThickness="1"
+                        Background="{ThemeResource BrandDangerBarBrush}" CornerRadius="12"
+                        BorderBrush="{ThemeResource BrandDangerBrush}" BorderThickness="1"
                         Padding="14,12">
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <FontIcon Glyph="&#xE7BA;" FontSize="14"
-                                  Foreground="{StaticResource BrandDangerBrush}"
+                                  Foreground="{ThemeResource BrandDangerBrush}"
                                   VerticalAlignment="Center"/>
                         <TextBlock x:Name="ErrorBannerText" VerticalAlignment="Center"
-                                   FontSize="12" Foreground="{StaticResource BrandDangerBrush}"
+                                   FontSize="12" Foreground="{ThemeResource BrandDangerBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
+                <!-- 外观 / 主题 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="外观 / 主题" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="6">
+                            <RadioButton x:Name="ThemeSystem" Content="跟随系统"
+                                         GroupName="Theme" Checked="ThemeRadio_Checked"/>
+                            <TextBlock Text="随系统设置自动切换浅色 / 深色"
+                                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
+                                       Margin="28,0,0,0" TextWrapping="Wrap"/>
+                            <RadioButton x:Name="ThemeLight" Content="浅色"
+                                         GroupName="Theme" Checked="ThemeRadio_Checked"
+                                         Margin="0,6,0,0"/>
+                            <RadioButton x:Name="ThemeDark" Content="深色"
+                                         GroupName="Theme" Checked="ThemeRadio_Checked"
+                                         Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
                 <!-- 运行模式 -->
                 <StackPanel Spacing="10">
                     <TextBlock Text="运行模式" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
-                    <Border Background="#12FFFFFF" CornerRadius="12"
-                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="1"
                             Padding="14">
                         <StackPanel Spacing="6">
                             <RadioButton x:Name="ModeOnline" Content="在线模式"
                                          GroupName="Mode" Checked="ModeRadio_Checked"/>
                             <TextBlock Text="连接 Halo 插件后端，Cookie 由服务端集中管理、自动续期"
-                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
                                        Margin="28,0,0,0" TextWrapping="Wrap"/>
                             <RadioButton x:Name="ModeOffline" Content="离线模式"
                                          GroupName="Mode" Checked="ModeRadio_Checked"
                                          Margin="0,10,0,0"/>
                             <TextBlock Text="本地登录 B 站捕获 Cookie，AES-256-GCM 加密存本地，不连接任何在线服务"
-                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
                                        Margin="28,0,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
@@ -77,7 +100,7 @@
                 <!-- 在线配置 -->
                 <StackPanel x:Name="OnlinePanel" Spacing="14">
                     <TextBlock Text="在线配置" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
 
                     <StackPanel Spacing="6">
                         <TextBlock Text="服务器地址" FontSize="12"/>
@@ -89,21 +112,21 @@
                         <TextBox x:Name="ServerBaseUrlBox" PlaceholderText="https://blog.example.com"
                                  Height="36" Visibility="Collapsed"/>
                         <TextBlock Text="Halo 站点域名，不含 /apis/... 后缀"
-                                   FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"/>
+                                   FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"/>
                     </StackPanel>
 
                     <StackPanel Spacing="6">
                         <TextBlock Text="个人访问令牌（PAT）" FontSize="12"/>
                         <PasswordBox x:Name="PatBox" PlaceholderText="Halo 后台 → 个人中心 → 访问令牌" Height="36"/>
                         <TextBlock Text="普通用户接口需携带本人 PAT，仅保存于本地"
-                                   FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"/>
+                                   FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button x:Name="TestButton" Content="测试连接"
                                 Style="{StaticResource BrandPrimaryButtonStyle}" Click="TestButton_Click"/>
                         <TextBlock x:Name="TestResult" VerticalAlignment="Center"
-                                   FontSize="12" Foreground="{StaticResource BrandTextMutedBrush}"
+                                   FontSize="12" Foreground="{ThemeResource BrandTextMutedBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </StackPanel>
@@ -111,9 +134,9 @@
                 <!-- 账号信息（在线模式，待账号信息 API；先展示占位） -->
                 <StackPanel x:Name="AccountPanel" Spacing="10">
                     <TextBlock Text="账号信息" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
-                    <Border Background="#12FFFFFF" CornerRadius="12"
-                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="1"
                             Padding="14">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -125,30 +148,37 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock x:Name="HaloAccountLabel" Text="Halo 账户" Grid.Row="0" FontSize="12"
-                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
                                        VerticalAlignment="Center" Margin="0,0,16,0"/>
                             <TextBlock x:Name="AccountHaloText" Grid.Row="0" Grid.Column="1" Text="—"
                                        FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
 
                             <TextBlock Text="Bilibili 用户" Grid.Row="1" FontSize="12" Margin="0,8,16,0"
-                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock x:Name="AccountBiliText" Grid.Row="1" Grid.Column="1" Text="—" Margin="0,8,0,0"
                                        FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
 
                             <TextBlock Text="Cookie 有效期" Grid.Row="2" FontSize="12" Margin="0,8,16,0"
-                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock x:Name="AccountExpiryText" Grid.Row="2" Grid.Column="1" Text="—" Margin="0,8,0,0"
                                        FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
 
                             <TextBlock Text="上次刷新时间" Grid.Row="3" FontSize="12" Margin="0,8,16,0"
-                                       Foreground="{StaticResource BrandTextMutedBrush}"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock x:Name="AccountLastRefreshText" Grid.Row="3" Grid.Column="1" Text="—" Margin="0,8,0,0"
+                                       FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="插件版本" Grid.Row="4" FontSize="12" Margin="0,8,16,0"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="AccountPluginVersionText" Grid.Row="4" Grid.Column="1" Text="—" Margin="0,8,0,0"
                                        FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
@@ -157,9 +187,9 @@
                 <!-- Cookie 管理 -->
                 <StackPanel Spacing="10">
                     <TextBlock Text="Cookie 管理" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
-                    <Border Background="#12FFFFFF" CornerRadius="12"
-                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="1"
                             Padding="14">
                         <StackPanel Spacing="12">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -200,57 +230,72 @@
                 </StackPanel>
 
                 <!-- 更多设置入口（在线模式，醒目卡片，位于 Cookie 板块下方、清除数据上方） -->
-                <Border x:Name="MoreLinkPanel" Background="#1AFB7299" CornerRadius="12"
-                        BorderBrush="{StaticResource BrandPinkBrush}" BorderThickness="1"
+                <Border x:Name="MoreLinkPanel" Background="{ThemeResource BrandPinkSoftBrush}" CornerRadius="12"
+                        BorderBrush="{ThemeResource BrandPinkBrush}" BorderThickness="1"
                         Padding="14,11">
-                    <TextBlock FontSize="13" Foreground="{StaticResource BrandTextBrush}"
+                    <TextBlock FontSize="13" Foreground="{ThemeResource BrandTextBrush}"
                                VerticalAlignment="Center" TextWrapping="Wrap">
                         <Run Text="更多设置请前往 "/><Hyperlink x:Name="MoreLink" Click="MoreLink_Click"
-                                Foreground="{StaticResource BrandPinkBrush}">个人中心</Hyperlink>
+                                Foreground="{ThemeResource BrandPinkBrush}">个人中心</Hyperlink>
                     </TextBlock>
                 </Border>
-
-                <!-- 关于与更新 -->
-                <StackPanel Spacing="10">
-                    <TextBlock Text="关于与更新" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
-                    <Border Background="#12FFFFFF" CornerRadius="12"
-                            BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="1"
-                            Padding="14">
-                        <StackPanel Spacing="10">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="当前版本" FontSize="12" VerticalAlignment="Center"
-                                           Foreground="{StaticResource BrandTextMutedBrush}"/>
-                                <TextBlock x:Name="CurrentVersionText" FontSize="12" VerticalAlignment="Center"
-                                           Foreground="{StaticResource BrandTextBrush}"/>
-                            </StackPanel>
-                            <Button x:Name="CheckUpdateButton" Content="检查更新"
-                                    Style="{StaticResource BrandPrimaryButtonStyle}"
-                                    Click="CheckUpdateButton_Click"/>
-                            <TextBlock x:Name="UpdateStatusText" FontSize="11"
-                                       Foreground="{StaticResource BrandTextMutedBrush}"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
 
                 <!-- 危险操作：清除所有数据 -->
                 <StackPanel Spacing="10">
                     <TextBlock Text="危险操作" FontSize="12" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrandTextMutedBrush}"/>
-                    <Border Background="#1AE05B5B" CornerRadius="12"
-                            BorderBrush="{StaticResource BrandDangerBrush}" BorderThickness="1"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandDangerCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandDangerBrush}" BorderThickness="1"
                             Padding="14">
                         <StackPanel Spacing="8">
                             <TextBlock Text="清除所有数据"
                                        FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource BrandDangerBrush}"/>
+                                       Foreground="{ThemeResource BrandDangerBrush}"/>
                             <TextBlock Text="删除本地配置、Cookie、日志与 WebView2 数据并重启应用，恢复到首次引导状态。"
-                                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
                                        TextWrapping="Wrap"/>
                             <Button Content="清除所有数据并重启" HorizontalAlignment="Left"
                                     Click="ClearAllDataButton_Click"
                                     Foreground="#FFFFFFFF"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- 关于 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="关于" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                    <Border Background="{ThemeResource BrandCardBrush}" CornerRadius="12"
+                            BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="1"
+                            Padding="14">
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="BiliShare" FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{ThemeResource BrandTextBrush}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock x:Name="CurrentVersionText" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                            </StackPanel>
+                            <TextBlock Text="B 站大会员 Cookie 远程共享桌面客户端，基于 WinUI 3 + .NET 8 + WebView2 构建。"
+                                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
+                                       TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="发布者" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{ThemeResource BrandTextMutedBrush}"/>
+                                <TextBlock Text="BaaaiZe" FontSize="12" VerticalAlignment="Center"
+                                           Foreground="{ThemeResource BrandTextBrush}"/>
+                            </StackPanel>
+                            <TextBlock FontSize="12" Foreground="{ThemeResource BrandTextBrush}">
+                                <Run Text="项目主页："/><Hyperlink x:Name="RepoLink" Click="RepoLink_Click"
+                                        Foreground="{ThemeResource BrandPinkBrush}">github.com/baize520mc/BiliShare</Hyperlink>
+                            </TextBlock>
+                            <Border Background="{ThemeResource BrandBorderBrush}" Height="1"/>
+                            <Button x:Name="CheckUpdateButton" Content="检查更新"
+                                    Style="{StaticResource BrandPrimaryButtonStyle}"
+                                    Click="CheckUpdateButton_Click"/>
+                            <TextBlock x:Name="UpdateStatusText" FontSize="11"
+                                       Foreground="{ThemeResource BrandTextMutedBrush}"
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -259,9 +304,9 @@
 
         <!-- 底部操作 -->
         <Grid Grid.Row="2" Padding="20,12,20,16"
-              BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="0,1,0,0">
+              BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="0,1,0,0">
             <TextBlock Text="您的设置将在新建标签页后生效"
-                       FontSize="11" Foreground="{StaticResource BrandTextMutedBrush}"
+                       FontSize="11" Foreground="{ThemeResource BrandTextMutedBrush}"
                        VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Button Content="保存" HorizontalAlignment="Right" MinWidth="88"
                     Style="{StaticResource BrandPrimaryButtonStyle}" Click="SaveButton_Click"/>
