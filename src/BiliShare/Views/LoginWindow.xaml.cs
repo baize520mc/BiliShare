@@ -34,7 +34,8 @@ public sealed partial class LoginWindow : Window
         _tempUserDataDir = System.IO.Path.Combine(Paths.WebView2UserDataDir, $"login_{Guid.NewGuid():N}");
         System.IO.Directory.CreateDirectory(_tempUserDataDir);
 
-        this.Closed += (_, _) => CleanupTempDirAsync();
+        ThemeService.Attach(RootGrid);
+        this.Closed += (_, _) => { CleanupTempDirAsync(); ThemeService.Detach(RootGrid); };
         InitializeWebViewAsync();
     }
 
@@ -78,7 +79,9 @@ public sealed partial class LoginWindow : Window
             var uri = e.Request.Uri;
             if (!uri.Contains("passport.bilibili.com"))
                 return;
-            if (!(uri.Contains("qrcode/poll") || uri.Contains("oauth2") || uri.Contains("web/login")))
+            // 覆盖扫码轮询、OAuth、密码登录(web/login)、验证码登录(web/sms/login)等所有登录响应
+            if (!(uri.Contains("qrcode/poll") || uri.Contains("oauth2")
+                  || uri.Contains("web/login") || uri.Contains("web/sms/login")))
                 return;
 
             var status = e.Response?.StatusCode ?? 0;
@@ -110,6 +113,14 @@ public sealed partial class LoginWindow : Window
             if (string.IsNullOrEmpty(sessdata))
                 return false;
 
+            // 已登录但缺少 refresh_token：提示并重新开始登录流程
+            if (string.IsNullOrWhiteSpace(_refreshToken))
+            {
+                _refreshToken = null;
+                await RestartLoginAsync();
+                return false;
+            }
+
             var cookie = new LocalCookie
             {
                 Sessdata = sessdata,
@@ -128,6 +139,39 @@ public sealed partial class LoginWindow : Window
         {
             return false;
         }
+    }
+
+    /// <summary>提示缺失 refresh_token，清空 Cookie 并重新加载登录页，回到未捕获状态。</summary>
+    private async Task RestartLoginAsync()
+    {
+        try
+        {
+            var core = WebView.CoreWebView2;
+            var cookies = await core.CookieManager.GetCookiesAsync("https://www.bilibili.com");
+            foreach (var c in cookies)
+            {
+                try { core.CookieManager.DeleteCookie(c); } catch { }
+            }
+        }
+        catch { }
+
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            LoginHint.Visibility = Visibility.Visible;
+            _captured = false;
+            _refreshToken = null;
+            _pollTimer?.Stop();
+            _pollTimer = null;
+
+            // 重新开始轮询，等待新一轮登录
+            _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
+            _pollTimer.Tick += async (_, _) => await TryCaptureAsync();
+            _pollTimer.Start();
+
+            var webview = WebView;
+            if (webview?.CoreWebView2 != null)
+                webview.CoreWebView2.Navigate("https://passport.bilibili.com/login");
+        });
     }
 
     private void Finish(LocalCookie? cookie)

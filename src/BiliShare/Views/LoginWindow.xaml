@@ -7,21 +7,27 @@
     mc:Ignorable="d"
     Title="登录 B 站">
 
-    <Grid Background="{StaticResource BrandWindowBrush}">
+    <Grid x:Name="RootGrid" Background="{ThemeResource BrandWindowBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- 顶部提示条 -->
-        <Border Grid.Row="0" Background="{StaticResource BrandSurfaceAltBrush}"
-                BorderBrush="{StaticResource BrandBorderBrush}" BorderThickness="0,0,0,1"
+        <Border Grid.Row="0" Background="{ThemeResource BrandSurfaceAltBrush}"
+                BorderBrush="{ThemeResource BrandBorderBrush}" BorderThickness="0,0,0,1"
                 Padding="14,10">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <FontIcon Glyph="&#xE7BA;" FontSize="13" Foreground="{StaticResource BrandTextBrush}"/>
-                <TextBlock Text="请使用密码或手机验证码登录，登录成功后会自动捕获 Cookie 并关闭此窗口"
-                           FontSize="12" Foreground="{StaticResource BrandTextBrush}"
-                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <StackPanel Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE7BA;" FontSize="13" Foreground="{ThemeResource BrandTextBrush}"/>
+                    <TextBlock Text="请使用密码或手机验证码登录，登录成功后会自动捕获 Cookie 并关闭此窗口"
+                               FontSize="12" Foreground="{ThemeResource BrandTextBrush}"
+                               VerticalAlignment="Center" TextWrapping="Wrap"/>
+                </StackPanel>
+                <TextBlock x:Name="LoginHint"
+                           Text="未捕获到 refresh_token，将重新开始登录流程，请重新登录"
+                           FontSize="12" Foreground="{ThemeResource BrandDangerBrush}"
+                           TextWrapping="Wrap" Visibility="Collapsed"/>
             </StackPanel>
         </Border>
 
