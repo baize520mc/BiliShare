@@ -42,6 +42,9 @@ public sealed class StatusData
     [JsonPropertyName("auto_refresh_enabled")]
     public bool AutoRefreshEnabled { get; set; }
 
+    [JsonPropertyName("plugin_version")]
+    public string PluginVersion { get; set; } = string.Empty;
+
     [JsonPropertyName("bili_username")]
     public string? BiliUsername { get; set; }
 

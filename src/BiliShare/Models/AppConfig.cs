@@ -10,6 +10,19 @@ public enum AppMode
     Offline,
 }
 
+/// <summary>界面主题。</summary>
+public enum AppTheme
+{
+    /// <summary>跟随系统：浅色/深色随系统主题自动切换。</summary>
+    System,
+
+    /// <summary>固定浅色。</summary>
+    Light,
+
+    /// <summary>固定深色。</summary>
+    Dark,
+}
+
 /// <summary>
 /// 应用配置（持久化到 <c>data/config.json</c>）。
 /// </summary>
@@ -26,4 +39,7 @@ public class AppConfig
 
     /// <summary>是否已完成首次引导（false 表示启动时先展示引导页）。</summary>
     public bool IsInitialized { get; set; }
+
+    /// <summary>界面主题（默认跟随系统）。</summary>
+    public AppTheme Theme { get; set; } = AppTheme.System;
 }

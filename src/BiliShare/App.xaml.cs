@@ -24,15 +24,18 @@ public partial class App : Application
         if (config.IsInitialized)
         {
             _window = new MainWindow();
+            ThemeService.Apply(config);
             _window.Activate();
         }
         else
         {
             _setupWindow = new SetupWindow(config);
+            ThemeService.Apply(config);
             _setupWindow.Completed += () =>
             {
                 _setupWindow = null;
                 _window = new MainWindow();
+                ThemeService.Apply(config);
                 _window.Activate();
             };
             _setupWindow.Activate();
