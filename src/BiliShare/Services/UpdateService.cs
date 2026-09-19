@@ -11,18 +11,31 @@ public sealed class UpdateInfo
 {
     public string Version { get; init; } = string.Empty;
     public string Notes { get; init; } = string.Empty;
+
+    /// <summary>代理加速下载地址（默认使用 gh-proxy 前缀，加速国内下载）。</summary>
     public string DownloadUrl { get; init; } = string.Empty;
+
+    /// <summary>官方直连下载地址（代理不可用时的回退）。</summary>
+    public string DirectDownloadUrl { get; init; } = string.Empty;
+
     public bool IsNewer { get; init; }
 }
 
+/// <summary>更新进度：状态文本 + 0~1 进度值（下载、解压共用）。</summary>
+public sealed record UpdateProgress(string Status, double Ratio);
+
 /// <summary>
 /// 更新服务：从 GitHub Releases 拉取最新版本，并下载便携 ZIP 自动覆盖当前应用后重启。
-/// 更新完全不触碰本地 <c>data/</c> 目录（配置、Cookie、日志等均保留）。
+/// 下载/解压均上报数值进度；覆盖前先退出当前进程，由外部 PowerShell 脚本在进程完全退出后
+/// 把新文件覆盖到软件根目录（更新完全不触碰本地 <c>data/</c> 目录）。
 /// </summary>
 public static class UpdateService
 {
     private const string Owner = "baize520mc";
     private const string Repo = "BiliShare";
+
+    /// <summary>GitHub 下载加速代理前缀（拼接在官方下载地址之前）。</summary>
+    private const string ProxyPrefix = "https://gh-proxy.org/";
 
     private static readonly HttpClient Http = new()
     {
@@ -48,6 +61,7 @@ public static class UpdateService
 
     /// <summary>
     /// 检查最新版本。找不到可用的便携包或网络错误时抛出异常（由调用方展示）。
+    /// 返回的 <see cref="UpdateInfo.DownloadUrl"/> 默认带 gh-proxy 加速前缀。
     /// </summary>
     public static async Task<UpdateInfo> CheckAsync()
     {
@@ -58,13 +72,13 @@ public static class UpdateService
             ?? throw new InvalidOperationException("无法解析版本信息");
 
         var latest = ParseVersion(release.TagName);
-        var download = release.Assets?
+        var direct = release.Assets?
             .FirstOrDefault(a => a.Name?.EndsWith("_portable.zip", StringComparison.OrdinalIgnoreCase) == true)
             ?.BrowserDownloadUrl
             ?? release.Assets?.FirstOrDefault(a => a.Name?.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true)
             ?.BrowserDownloadUrl;
 
-        if (latest == null || string.IsNullOrWhiteSpace(download))
+        if (latest == null || string.IsNullOrWhiteSpace(direct))
             throw new InvalidOperationException("发布中缺少可用的便携包");
 
         var current = CurrentAssemVersion;
@@ -72,41 +86,135 @@ public static class UpdateService
         {
             Version = $"{latest.Major}.{latest.Minor}.{latest.Build}",
             Notes = Truncate(release.Body, 500),
-            DownloadUrl = download,
+            DownloadUrl = ProxyPrefix + direct,
+            DirectDownloadUrl = direct,
             IsNewer = current == null || latest > current,
         };
     }
 
-    /// <summary>下载并应用更新：解压到临时目录，写更新脚本后退出当前进程，由脚本覆盖文件并重启。</summary>
-    public static async Task ApplyAsync(UpdateInfo info, IProgress<string>? progress = null)
+    /// <summary>
+    /// 下载并应用更新：下载（带进度）→ 解压到临时目录（带进度）→
+    /// 经 <paramref name="confirmBeforeClose"/> 确认后写 PowerShell 脚本并退出当前进程，
+    /// 由脚本在进程完全退出后覆盖文件并重启。
+    /// </summary>
+    /// <returns>
+    /// true 表示已开始应用（进程随后退出，调用方无需再处理）；
+    /// false 表示用户在确认弹窗中取消了本次更新。
+    /// </returns>
+    public static async Task<bool> ApplyAsync(
+        UpdateInfo info,
+        IProgress<UpdateProgress>? progress = null,
+        Func<Task<bool>>? confirmBeforeClose = null)
     {
-        progress?.Report("正在下载更新…");
-
         var updatesDir = Path.Combine(Paths.DataDir, "updates");
         Directory.CreateDirectory(updatesDir);
         var zipPath = Path.Combine(updatesDir, "update.zip");
+        var stageDir = Path.Combine(updatesDir, "stage");
 
-        using (var resp = await Http.GetAsync(info.DownloadUrl, HttpCompletionOption.ResponseHeadersRead))
+        try
         {
-            resp.EnsureSuccessStatusCode();
-            using var fs = File.Create(zipPath);
-            using var stream = await resp.Content.ReadAsStreamAsync();
-            await stream.CopyToAsync(fs);
+            // ---------- 下载（数值进度） ----------
+            progress?.Report(new UpdateProgress("正在下载更新…", 0));
+            using (var resp = await DownloadAsync(info))
+            {
+                resp.EnsureSuccessStatusCode();
+                var total = resp.Content.Headers.ContentLength ?? -1;
+                await using var fs = File.Create(zipPath);
+                await using var stream = await resp.Content.ReadAsStreamAsync();
+                var buffer = new byte[64 * 1024];
+                long received = 0;
+                int read;
+                while ((read = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length))) > 0)
+                {
+                    await fs.WriteAsync(buffer.AsMemory(0, read));
+                    received += read;
+                    if (total > 0)
+                        progress?.Report(new UpdateProgress(
+                            $"正在下载更新… {received * 100 / total}%",
+                            (double)received / total));
+                }
+            }
+
+            // ---------- 解压（逐条目解压，按字节数上报进度） ----------
+            progress?.Report(new UpdateProgress("正在解压…", 0));
+            if (Directory.Exists(stageDir))
+                Directory.Delete(stageDir, true);
+            Directory.CreateDirectory(stageDir);
+
+            using (var archive = ZipFile.OpenRead(zipPath))
+            {
+                var totalBytes = archive.Entries.Sum(e => e.Length);
+                long extracted = 0;
+                foreach (var entry in archive.Entries)
+                {
+                    var dest = Path.GetFullPath(Path.Combine(stageDir, entry.FullName));
+                    if (!dest.StartsWith(stageDir, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("压缩包包含非法路径");
+
+                    if (entry.FullName.EndsWith('/'))
+                    {
+                        Directory.CreateDirectory(dest);
+                        continue;
+                    }
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                    entry.ExtractToFile(dest, overwrite: true);
+                    extracted += entry.Length;
+
+                    if (totalBytes > 0)
+                        progress?.Report(new UpdateProgress(
+                            $"正在解压… {extracted * 100 / totalBytes}%",
+                            (double)extracted / totalBytes));
+                }
+            }
+            File.Delete(zipPath);
+
+            // ---------- 应用前确认（即将关闭软件提醒） ----------
+            if (confirmBeforeClose != null && !await confirmBeforeClose())
+            {
+                // 用户取消：清理中间产物，不关闭应用
+                if (Directory.Exists(stageDir))
+                    Directory.Delete(stageDir, true);
+                return false;
+            }
+
+            progress?.Report(new UpdateProgress("正在应用更新，应用即将关闭…", 1));
+            ApplyFromStage(stageDir);
+            return true; // 实际不会走到：ApplyFromStage 内已退出进程
+        }
+        catch
+        {
+            // 清理失败的中间产物，避免残留影响下次更新
+            try { if (File.Exists(zipPath)) File.Delete(zipPath); } catch { }
+            try { if (Directory.Exists(stageDir)) Directory.Delete(stageDir, true); } catch { }
+            throw;
+        }
+    }
+
+    /// <summary>优先使用代理地址下载；代理不可用或返回错误时回退官方直连。</summary>
+    private static async Task<HttpResponseMessage> DownloadAsync(UpdateInfo info)
+    {
+        if (string.IsNullOrEmpty(info.DownloadUrl))
+            return await Http.GetAsync(info.DirectDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+
+        try
+        {
+            var resp = await Http.GetAsync(info.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            if (resp.IsSuccessStatusCode)
+                return resp;
+            resp.Dispose();
+        }
+        catch
+        {
+            // 代理不可达，走官方直连
         }
 
-        progress?.Report("正在解压…");
-        var stageDir = Path.Combine(updatesDir, "stage");
-        if (Directory.Exists(stageDir))
-            Directory.Delete(stageDir, true);
-        ZipFile.ExtractToDirectory(zipPath, stageDir);
-
-        progress?.Report("正在应用更新，应用即将重启…");
-        ApplyFromStage(stageDir);
+        return await Http.GetAsync(info.DirectDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
     }
 
     /// <summary>
-    /// 写一个 PowerShell 脚本并后台启动：等待当前进程退出 → 覆盖文件 → 重启新版 → 自清理。
-    /// 随后立即退出当前进程以释放文件锁。
+    /// 写一个 PowerShell 脚本并后台启动：等待当前进程完全退出（超时则强制结束）→ 结束残留
+    /// WebView2 子进程 → 覆盖文件 → 重启新版 → 自清理。随后立即退出当前进程以释放文件锁。
     /// </summary>
     private static void ApplyFromStage(string stageDir)
     {
@@ -119,17 +227,24 @@ public static class UpdateService
             $"$root = {Pq(root)}\r\n" +
             $"$stage = {Pq(stageDir)}\r\n" +
             $"$exe = {Pq(exe)}\r\n" +
-            "while (Get-Process BiliShare -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 400 }\r\n" +
-            "Start-Sleep -Milliseconds 800\r\n" +
+            // 1) 等待主程序完全退出（10 秒未退出则强制结束，避免文件被占用）
+            "$deadline = (Get-Date).AddSeconds(10)\r\n" +
+            "while ((Get-Process BiliShare -ErrorAction SilentlyContinue) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 300 }\r\n" +
+            "Get-Process BiliShare -ErrorAction SilentlyContinue | Stop-Process -Force\r\n" +
+            "Start-Sleep -Milliseconds 600\r\n" +
+            // 2) 结束残留的 WebView2 子进程（可能占用将被覆盖的文件）
             "Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force\r\n" +
-            "Start-Sleep -Milliseconds 500\r\n" +
+            "Start-Sleep -Milliseconds 600\r\n" +
+            // 3) 覆盖文件（重试 20 次，失败则记录日志）
             "$ok = $false\r\n" +
-            "for ($i = 0; $i -lt 10 -and -not $ok; $i++) {\r\n" +
+            "for ($i = 0; $i -lt 20 -and -not $ok; $i++) {\r\n" +
             "  try {\r\n" +
             "    Copy-Item -Path (Join-Path $stage '*') -Destination $root -Recurse -Force -ErrorAction Stop\r\n" +
             "    $ok = $true\r\n" +
-            "  } catch { Start-Sleep -Milliseconds 500 }\r\n" +
+            "  } catch { Start-Sleep -Milliseconds 400 }\r\n" +
             "}\r\n" +
+            "if (-not $ok) { 'UPDATE_COPY_FAILED' | Out-File -FilePath (Join-Path $root 'data\\updates\\apply.log') -Encoding utf8 }\r\n" +
+            // 4) 清理并重启新版
             "Remove-Item $stage -Recurse -Force\r\n" +
             "Set-Location $root\r\n" +
             "Start-Process -FilePath $exe -WorkingDirectory $root\r\n" +

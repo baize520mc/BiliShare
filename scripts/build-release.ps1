@@ -11,7 +11,7 @@ $MsBuild   = 'C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Curr
 $InnoISCC  = Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'
 $SevenZip  = '7z.exe'
 
-$Version    = '1.1.0'
+$Version    = '1.1.1'
 $OutDir     = Join-Path $Root 'dist'
 $BuildOut   = Join-Path $Root 'src\BiliShare\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64'
 $StageDir   = Join-Path $OutDir 'BiliShare'

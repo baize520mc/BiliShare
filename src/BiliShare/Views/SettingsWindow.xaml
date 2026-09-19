@@ -293,6 +293,9 @@
                             <Button x:Name="CheckUpdateButton" Content="检查更新"
                                     Style="{StaticResource BrandPrimaryButtonStyle}"
                                     Click="CheckUpdateButton_Click"/>
+                            <ProgressBar x:Name="UpdateProgressBar" Minimum="0" Maximum="100" Value="0"
+                                         Height="4" Visibility="Collapsed"
+                                         Foreground="{ThemeResource BrandPinkBrush}"/>
                             <TextBlock x:Name="UpdateStatusText" FontSize="11"
                                        Foreground="{ThemeResource BrandTextMutedBrush}"
                                        TextWrapping="Wrap"/>

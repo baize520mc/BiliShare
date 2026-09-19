@@ -337,6 +337,8 @@ public sealed partial class SettingsWindow : Window
     {
         CheckUpdateButton.IsEnabled = false;
         ClearError();
+        UpdateProgressBar.Visibility = Visibility.Collapsed;
+        UpdateProgressBar.Value = 0;
         UpdateStatusText.Foreground = XamlBrush("BrandTextMutedBrush");
         UpdateStatusText.Text = "正在检查更新…";
 
@@ -366,12 +368,40 @@ public sealed partial class SettingsWindow : Window
                 return;
             }
 
-            var progress = new Progress<string>(msg => UpdateStatusText.Text = msg);
-            await UpdateService.ApplyAsync(info, progress);
+            var progress = new Progress<UpdateProgress>(p =>
+            {
+                UpdateProgressBar.Visibility = Visibility.Visible;
+                UpdateProgressBar.Value = Math.Clamp(p.Ratio, 0, 1) * 100;
+                UpdateStatusText.Text = p.Status;
+            });
+
+            // 下载/解压完成后、正式关闭软件前再次提醒用户
+            var applied = await UpdateService.ApplyAsync(info, progress, async () =>
+            {
+                var closeConfirm = new ContentDialog
+                {
+                    Title = "即将关闭软件",
+                    Content = "更新文件已准备就绪。接下来将关闭 BiliShare 以覆盖更新文件，完成后会自动重启，请稍候。",
+                    PrimaryButtonText = "关闭并更新",
+                    CloseButtonText = "取消",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = RootGrid.XamlRoot,
+                };
+                return await closeConfirm.ShowAsync() == ContentDialogResult.Primary;
+            });
+
+            if (!applied)
+            {
+                UpdateProgressBar.Visibility = Visibility.Collapsed;
+                UpdateStatusText.Foreground = XamlBrush("BrandTextMutedBrush");
+                UpdateStatusText.Text = "已取消更新";
+            }
+            // applied == true 时进程已退出，无需继续处理
         }
         catch
         {
-            UpdateStatusText.Text = "检查失败：网络异常或发布尚未就绪";
+            UpdateProgressBar.Visibility = Visibility.Collapsed;
+            UpdateStatusText.Text = "更新失败：网络异常或发布尚未就绪";
         }
         finally
         {
