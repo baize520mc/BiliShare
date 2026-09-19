@@ -1,6 +1,6 @@
 ; BiliShare installer script (Inno Setup 6)
 #define MyAppName "BiliShare"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "BaaaiZe"
 #define MyAppExeName "BiliShare.exe"
 
@@ -17,7 +17,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=..\dist
-OutputBaseFilename=BiliShare_Setup_1.0.0
+OutputBaseFilename=BiliShare_Setup_1.1.0
 SetupIconFile=..\src\BiliShare\Assets\BiliShare.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
