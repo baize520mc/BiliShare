@@ -50,7 +50,7 @@ public sealed partial class MainWindow : Window
     private InputNonClientPointerSource? _ncInputSource;
     private const double TitleBarHeightDip = 34; // 标签栏高度（作为可拖拽标题栏）
 
-    private static Brush ResourceBrush(string key) => (Brush)Application.Current.Resources[key];
+    private Brush ResourceBrush(string key) => ThemeService.Brush(key, RootGrid);
     private static Style ResourceStyle(string key) => (Style)Application.Current.Resources[key];
 
     public MainWindow()
@@ -64,6 +64,9 @@ public sealed partial class MainWindow : Window
         SetupWindowChrome();
         SetupDragRegion();
         this.AppWindow.Changed += AppWindow_Changed;
+
+        ThemeService.Attach(RootGrid);
+        Closed += (_, _) => ThemeService.Detach(RootGrid);
 
         // 默认最大化启动
         if (this.AppWindow.Presenter is OverlappedPresenter p) p.Maximize();
