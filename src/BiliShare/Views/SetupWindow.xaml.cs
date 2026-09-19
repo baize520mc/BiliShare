@@ -26,6 +26,8 @@ public sealed partial class SetupWindow : Window
         this.AppWindow.Title = "BiliShare · 初始设置";
         this.AppWindow.Resize(new Windows.Graphics.SizeInt32(820, 900));
         if (this.AppWindow.Presenter is OverlappedPresenter presenter) presenter.Maximize();
+        ThemeService.Attach(RootGrid);
+        Closed += (_, _) => ThemeService.Detach(RootGrid);
         InitializeWebViewAsync();
     }
 
