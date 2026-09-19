@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Title="一个神秘的Bilibili客户端">
 
-    <Grid x:Name="RootGrid" Background="{StaticResource BrandWindowBrush}">
+    <Grid x:Name="RootGrid" Background="{ThemeResource BrandWindowBrush}">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/><!-- 标签栏 -->
@@ -17,12 +17,12 @@
 
         <!-- 顶部粉→蓝 品牌强调条 -->
         <Rectangle Grid.RowSpan="3" Height="3" VerticalAlignment="Top"
-                   Fill="{StaticResource BrandTopAccentBrush}" IsHitTestVisible="False"/>
+                   Fill="{ThemeResource BrandTopAccentBrush}" IsHitTestVisible="False"/>
 
         <!-- ============ 标签栏 ============ -->
         <Grid x:Name="TabBarArea" Grid.Row="0" Height="34" Padding="8,4,0,4"
-              Background="{StaticResource BrandSurfaceAltBrush}"
-              BorderBrush="{StaticResource BrandBorderBrush}"
+              Background="{ThemeResource BrandSurfaceAltBrush}"
+              BorderBrush="{ThemeResource BrandBorderBrush}"
               BorderThickness="0,0,0,1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -75,8 +75,8 @@
 
         <!-- ============ 导航工具栏 ============ -->
         <Grid x:Name="ToolbarArea" Grid.Row="1" Height="42" Padding="10,4"
-              Background="{StaticResource BrandSurfaceBrush}"
-              BorderBrush="{StaticResource BrandBorderBrush}"
+              Background="{ThemeResource BrandSurfaceBrush}"
+              BorderBrush="{ThemeResource BrandBorderBrush}"
               BorderThickness="0,0,0,1">
 
             <Grid.ColumnDefinitions>
@@ -111,22 +111,22 @@
             <!-- 只读地址栏（胶囊，磨砂态） -->
             <Border Grid.Column="4" Margin="10,0"
                     Height="30" VerticalAlignment="Center"
-                    Background="#12FFFFFF" CornerRadius="15"
-                    BorderBrush="{StaticResource BrandBorderStrongBrush}" BorderThickness="1">
+                    Background="{ThemeResource BrandAddressBarBrush}" CornerRadius="15"
+                    BorderBrush="{ThemeResource BrandBorderStrongBrush}" BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <FontIcon Grid.Column="0" Glyph="&#xE774;" FontSize="11"
-                              Foreground="{StaticResource BrandPinkBrush}"
+                              Foreground="{ThemeResource BrandPinkBrush}"
                               Margin="12,0,4,0" VerticalAlignment="Center"/>
                     <TextBlock x:Name="AddressBar" Grid.Column="1"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Stretch"
                                Margin="0,1,0,0"
                                FontSize="12"
-                               Foreground="{StaticResource BrandTextMutedBrush}"
+                               Foreground="{ThemeResource BrandTextMutedBrush}"
                                TextTrimming="CharacterEllipsis"
                                Text="阅读浏览 · 点触即达" />
                 </Grid>
@@ -147,7 +147,7 @@
                 </Ellipse>
                 <TextBlock x:Name="StatusText" VerticalAlignment="Center"
                            Text="未连接" FontSize="11"
-                           Foreground="{StaticResource BrandTextMutedBrush}"/>
+                           Foreground="{ThemeResource BrandTextMutedBrush}"/>
             </StackPanel>
 
             <!-- 设置 -->
@@ -159,6 +159,6 @@
         </Grid>
 
         <!-- ============ WebView2 内容区 ============ -->
-        <Grid Grid.Row="2" x:Name="WebViewHost" Background="#FF121110"/>
+        <Grid Grid.Row="2" x:Name="WebViewHost" Background="{ThemeResource BrandWebViewBackgroundBrush}"/>
     </Grid>
 </Window>
